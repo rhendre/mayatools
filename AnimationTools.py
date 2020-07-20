@@ -4,23 +4,21 @@ import maya.cmds as cmds
 #RUCHI_HENDRE
 #Tools to make animating easy for novice animators, this tool has the basic functions like set keyframe, plablast, copy, paste keys.
 
-
 def SetKeyframeFromUI(*args):
     pm.setKeyframe(i = True)
     
 def copyKeyframe(*args):
-    cmds.copyKey()
+    cmds.copyKey(t= (pm.currentTime(),pm.currentTime()))
     
 def pasteKeyframe(*args):
-    cmds.pasteKey()
+    cmds.pasteKey( t= (pm.currentTime(),pm.currentTime()))
        
 def PlayblastVideo(*args):
     pm.playblast()
     
 def animationEditor(*args):  
     mel.eval('tearOffPanel "Graph Editor" graphEditor true')
-         
-            
+                     
 def addPosetoPoseEditor(*args):
     pm.pose(ap = True)
 
@@ -29,22 +27,16 @@ def applyPose(*args):
     
 def setPlayblackSpeed(*args):
     pm.setplaybackSpeed()
-       
-   
+          
 def rotationInterpolationFunction(*args):
     pm.rotationInterpolation( '%s.selected', convert='quaternionSlerp' )
     
 def displayCurrentTime(*args):
     return pm.currentTime( query=True )
-    
-def getStartTime(*args):
-      pm.setAttr('startTime.text', 120)
 		
 
 def ToggleNurbsCurves(*args):
     myPanel = cmds.getPanel(withFocus = True)
-
-  
     if(cmds.modelEditor(myPanel, query = True, nurbsCurves = True)):
         cmds.modelEditor(myPanel, edit = True,nurbsCurves = False)
         print "nurbsCurves hidden"
@@ -74,8 +66,7 @@ def createPanel():
     pm.text(label='Current Frame')
     pm.textField( text = pm.currentTime(query =True))
     pm.text(label = 'Start Frame')
-    startTime =  pm.textField(text = cmds.playbackOptions( q=True,min=True ))
-    pm.textField(startTime, changeCommand = getStartTime)
+    pm.textField(text = cmds.playbackOptions( q=True,min=True ))
     pm.text(label = 'End Frame') 
     pm.textField( text = cmds.playbackOptions( q=True,max=True ))
     
@@ -95,7 +86,7 @@ def createPanel():
     cmds.setParent('..')
     seprator1 = cmds.separator(w=400, h=10)
     
-    
+    pm.text(label= '')
     
     pm.formLayout( form, edit=True)
     allowedAreas=['right','left']
