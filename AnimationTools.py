@@ -6,21 +6,20 @@ import maya.cmds as cmds
 
 
 def SetKeyframeFromUI(*args):
-    pm.setKeyframe()
+    pm.setKeyframe(i = True)
     
 def copyKeyframe(*args):
-    pm.copyKey()
+    cmds.copyKey()
     
 def pasteKeyframe(*args):
-    pm.pasteKey()
+    cmds.pasteKey()
        
 def PlayblastVideo(*args):
     pm.playblast()
     
 def animationEditor(*args):  
-    with pm.window():
-        with pm.autoLayout():
-            pm.animCurveEditor(cm= True, stackedCurves= True)
+    mel.eval('tearOffPanel "Graph Editor" graphEditor true')
+         
             
 def addPosetoPoseEditor(*args):
     pm.pose(ap = True)
@@ -38,21 +37,26 @@ def rotationInterpolationFunction(*args):
 def displayCurrentTime(*args):
     return pm.currentTime( query=True )
     
-def setCurrentFrame(self, frame):
-		return cmds.currentTime(frame) == frame
+def getStartTime(*args):
+      pm.setAttr('startTime.text', 120)
 		
 
 def ToggleNurbsCurves(*args):
-    actView = cmds.getPanel(wf=True)
+    myPanel = cmds.getPanel(withFocus = True)
 
-    if cmds.modelEditor(actView, q=True, nurbsCurves=True) == 1:
-        cmds.modelEditor(actView, e=True, nurbsCurves=False)
+  
+    if(cmds.modelEditor(myPanel, query = True, nurbsCurves = True)):
+        cmds.modelEditor(myPanel, edit = True,nurbsCurves = False)
+        print "nurbsCurves hidden"
+    else:
+        cmds.modelEditor(myPanel, edit = True, nurbsCurves=True)
+        print "nurbsCurves visible"
+
         
-def setPlaybackoptions(startFrame):
+def setPlaybackoptions(startFrame, endFrame):
     #get animation start time 
-    pm.playbackOptions(ast = startFrame)
-        
-       
+    pm.playbackOptions(ast = startFrame, aet = endFrame)
+              
     
 def createPanel():
     pm.window(windowID, title = 'Animation Tools', width = 500)
@@ -70,7 +74,8 @@ def createPanel():
     pm.text(label='Current Frame')
     pm.textField( text = pm.currentTime(query =True))
     pm.text(label = 'Start Frame')
-    pm.textField( text = cmds.playbackOptions( q=True,min=True ))
+    startTime =  pm.textField(text = cmds.playbackOptions( q=True,min=True ))
+    pm.textField(startTime, changeCommand = getStartTime)
     pm.text(label = 'End Frame') 
     pm.textField( text = cmds.playbackOptions( q=True,max=True ))
     
@@ -90,10 +95,6 @@ def createPanel():
     cmds.setParent('..')
     seprator1 = cmds.separator(w=400, h=10)
     
-    pm.text(label= 'Animation Retargeting')
-    
-    cmds.setParent('..')
-    seprator1 = cmds.separator(w=400, h=10)
     
     
     pm.formLayout( form, edit=True)
