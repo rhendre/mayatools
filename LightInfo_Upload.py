@@ -1,56 +1,43 @@
-# Script to load lighting information in a txt file
+# Script to upload lighting information from a txt file
+# author: Ruchi Hendre
+# created: 9/6/2020
 
 import maya.cmds as cmds
 import pymel.core as pm
 import ast
 import json
 
-name = 'WindowID30'
+name = 'WindowID'
 title = 'Light Information Upload'
 
+
 def createPanel():
-    cmds.window(name, title='Light Information Tool', width=500)
+    cmds.window(name, title='Change Ambient Lighting', width=500)
     cmds.columnLayout(adjustableColumn=True)
 
-    cmds.rowColumnLayout(w=500, h=100, nc=3, cs=[(1, 30), (2, 30), (3, 30)], rs=(1, 5))
-    cmds.button(label='Scene A', command= uploadLightInfo_fromTxtFile)
-    cmds.button(label='Scene B', command= uploadLightInfo_fromTxtFile_SceneB)
-    cmds.button(label='Scene C', command= uploadLightInfo_fromTxtFile)
+    cmds.button(label='Red', command=lambda x: uploadLightInfo_fromTxtFile(0))
+    cmds.button(label='Green', command=lambda x: uploadLightInfo_fromTxtFile(1))
+    cmds.button(label='Blue', command=lambda x: uploadLightInfo_fromTxtFile(2))
 
     cmds.showWindow(name)
-    cmds.window(name, edit=True, width=400, height=200)
-    
+    cmds.window(name, edit=True, width=400, height=100)
 
-def uploadLightInfo_fromTxtFile(*args):
-    fileHandle = open('C:\\Users\\rhendre\\Downloads\\tech_artist_test\\test_02\\lightSetup.txt', 'r')
-    lightInfo = json.load(fileHandle)
-    print lightInfo
-    
+
+def uploadLightInfo_fromTxtFile(i, *args):
+    # multiple json entries
+
+    with open('lights_setup.txt', 'r') as file:
+        data = file.read()
+        new_data = data.replace('}{', '},{')
+        json_data = json.loads('['+new_data+']')
+
     lights = cmds.ls(type="light")
-  
-    cmds.setAttr('%s.intensity'% lights[0], lightInfo[0]['Intensity'])
-    cmds.setAttr('%s.color'% lights[0], lightInfo[0]['Color'][0][0],lightInfo[0]['Color'][0][1], lightInfo[0]['Color'][0][2])
 
-        
-    fileHandle.close()
-    return 'yes'
-    
-    
-def uploadLightInfo_fromTxtFile_SceneB(*args):
-    fileHandle = open('C:\\Users\\rhendre\\Downloads\\tech_artist_test\\test_02\\lightSetup.txt', 'r')
-    lightInfo = json.load(fileHandle)
-    print lightInfo
-    
-    lights = cmds.ls(type="light")
-    cmds.setAttr('%s.intensity'% lights[0], lightInfo[1]['Intensity'])
-    cmds.setAttr('%s.color'% lights[0], lightInfo[1]['Color'][0][0],lightInfo[1]['Color'][0][1], lightInfo[1]['Color'][0][2])
-        
-    fileHandle.close()
-    return 'yes'
-    
+    cmds.setAttr('%s.intensity' % lights[0], json_data[i]['Intensity'])
+    cmds.setAttr('%s.color' % lights[0], json_data[i]['Color'][0][0], json_data[i]['Color'][0][1],
+                 json_data[i]['Color'][0][2])
+
+    file.close()
 
 
-    
-
-    
 createPanel()
